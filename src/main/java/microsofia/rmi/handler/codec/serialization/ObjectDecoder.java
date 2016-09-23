@@ -29,9 +29,12 @@ public class ObjectDecoder extends LengthFieldBasedFrameDecoder {
             return null;
         }
 
-        ObjectInputStream is = new CompactObjectInputStream(new ByteBufInputStream(frame), server,classLoader);
+        CompactObjectInputStream is = new CompactObjectInputStream(new ByteBufInputStream(frame), server,classLoader);
         Object result = is.readObject();
         is.close();
+        
+        server.getClientGC().add(is.getObjectAddress());
+        
         return result;
     }
 

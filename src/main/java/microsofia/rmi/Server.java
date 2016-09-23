@@ -4,8 +4,9 @@ import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -14,6 +15,11 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import microsofia.rmi.gc.ClientGC;
+import microsofia.rmi.gc.IClientGC;
+import microsofia.rmi.gc.IClientGCListener;
+import microsofia.rmi.gc.IServerGC;
+import microsofia.rmi.gc.ServerGC;
 import microsofia.rmi.handler.ServerErrorHandler;
 import microsofia.rmi.handler.codec.ServerDecoder;
 import microsofia.rmi.handler.codec.serialization.ObjectDecoder;
@@ -25,28 +31,34 @@ import microsofia.rmi.invocation.ObjectAddress;
 import microsofia.rmi.invocation.ServerInvoker;
 
 public class Server implements IServer{
+	private ServerConfiguration serverConfiguration;
 	private ServerAddress serverAddress;
-	private GenericObjectPoolConfig clientConnectionsConfig;
 	private Registry registry;
 	private ClassesMetada classesMetada;	
 	private ClassLoader classLoader;
 	private ClientInvoker clientInvoker;
 	private ServerInvoker serverInvoker;
+	private ServerGC serverGC;
+	private ClientGC clientGC;
+	private ExecutorService executorService;
+	private ScheduledExecutorService scheduledExecutorService;
 	private EventLoopGroup group;
 	private ServerBootstrap server;
 	private Channel serverChannel;
 
 	public Server(){
+		serverConfiguration=new ServerConfiguration();
 		serverAddress=new ServerAddress("localhost",0);
-		clientConnectionsConfig=new GenericObjectPoolConfig();
 		registry=new Registry(serverAddress);
 		classesMetada=new ClassesMetada();
 		classLoader=getClass().getClassLoader();
-		serverInvoker=new ServerInvoker(registry, classesMetada);		
+		serverInvoker=new ServerInvoker(this,registry, classesMetada);
+		serverGC=new ServerGC(this, registry, serverConfiguration);
+		clientGC=new ClientGC(this, new ClientGCListener(), serverConfiguration);
 	}
 	
-	public GenericObjectPoolConfig getClientConnectionsConfig(){
-		return clientConnectionsConfig;
+	public ServerConfiguration getServerConfiguration(){
+		return serverConfiguration;
 	}
 	
 	public void setHost(String host){
@@ -72,13 +84,34 @@ public class Server implements IServer{
 	public ClientInvoker getClientInvoker(){
 		return clientInvoker;
 	}
+	
+	public ClientGC getClientGC(){
+		return clientGC;
+	}
+	
+	public ServerGC getServerGC(){
+		return serverGC;
+	}
+	
+	public ExecutorService getExecutorService(){
+		return executorService;
+	}
+	
+	public ScheduledExecutorService getScheduledExecutorService(){
+		return scheduledExecutorService;
+	}
 
 	public void start() throws Throwable{
 		registry.export(this, IServer.class);
 		registry.export(registry, IRegistry.class);
+		registry.export(serverGC, IServerGC.class);
+		registry.export(clientGC,IClientGC.class);
+	
+		executorService=Executors.newCachedThreadPool();
+		scheduledExecutorService=Executors.newScheduledThreadPool(0);
 		
 		group=new NioEventLoopGroup();
-		clientInvoker=new ClientInvoker(this,classesMetada,registry,group,clientConnectionsConfig);
+		clientInvoker=new ClientInvoker(this,classesMetada,registry,group,serverConfiguration.getClientConnectionsConfig());
 		
 		server=new ServerBootstrap();
 		server.group(group)
@@ -88,7 +121,7 @@ public class Server implements IServer{
 				  public void initChannel(Channel c) throws Exception{
 					  c.pipeline().addLast(new ServerErrorHandler());
 					  c.pipeline().addLast(new ObjectDecoder(Server.this,classLoader));
-					  c.pipeline().addLast(new ObjectEncoder(registry));
+					  c.pipeline().addLast(new ObjectEncoder(Server.this,registry,null));
 					  c.pipeline().addLast(new ServerDecoder(serverInvoker));
 				  }
 			});
@@ -107,6 +140,11 @@ public class Server implements IServer{
 	public void export(Object o,Class<?> interf){
 		registry.export(o,interf);
 	}
+	
+    public <T> T lookup(ServerAddress serverAddress, Class<T> interf){
+		ClientInvocationHandler clientInvocationHandler=new ClientInvocationHandler(clientInvoker, new ObjectAddress(serverAddress, interf.getName(), new Class[]{interf}));
+		return interf.cast(Proxy.newProxyInstance(classLoader, new Class[]{interf}, clientInvocationHandler));
+    }
 		
 	public IServer getServer(String host,int port){
 		ClientInvocationHandler clientInvocationHandler=new ClientInvocationHandler(clientInvoker, new ObjectAddress(new ServerAddress(host, port), IServer.class.getName(), new Class[]{IServer.class}));
@@ -116,8 +154,9 @@ public class Server implements IServer{
 	public void stop() throws Exception{
 		serverChannel.disconnect().sync();
 		group.shutdownGracefully().sync();
-		serverInvoker.stop();
 		clientInvoker.stop();
+		executorService.shutdown();
+		scheduledExecutorService.shutdown();
 	}
 	
 	@Override
@@ -128,6 +167,34 @@ public class Server implements IServer{
 	@Override
 	public IRegistry getRegistry() {
 		return registry;
+	}
+	
+	private class ClientGCListener implements IClientGCListener{//TODO
+
+		@Override
+		public void objectAlive(ServerAddress serverAddress, String[] objects) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void objectMaybeDead(ServerAddress serverAddress, String[] objects, Throwable throwable) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void objectDead(ServerAddress serverAddress, String[] objects, Throwable throwable) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void objectDead(ServerAddress serverAddress, String[] objects) {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 	
 	public static void main(String[] argv) throws Throwable{
@@ -143,6 +210,7 @@ public class Server implements IServer{
 		
 		IServer server11=server2.getServer("localhost",9999);
 		System.out.println(server11);
+
 		IRegistry reg1=server11.getRegistry();
 		System.out.println(reg1);
 		List<Thread> ths=new ArrayList<>();
@@ -164,6 +232,11 @@ public class Server implements IServer{
 				e.printStackTrace();
 			}
 		});
+		
+		IRegistry reg2=server11.getRegistry();
+		System.out.println("reg1=="+reg1);
+		System.out.println("reg2=="+reg2);
+		System.out.println("reg1.equals(reg2)=="+reg1.equals(reg2));
 
 		server1.stop();
 		server2.stop();

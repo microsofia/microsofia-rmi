@@ -15,17 +15,17 @@ public class CompactObjectOutputStream extends ObjectOutputStream {
     static final int TYPE_FAT_DESCRIPTOR = 0;
     static final int TYPE_THIN_DESCRIPTOR = 1;
     private Registry registry;
-    private Set<ObjectAddress> oas;
+    private Set<String> ids;
 
     public CompactObjectOutputStream(OutputStream out,Registry registry) throws IOException {
         super(out);
         this.registry=registry;
         enableReplaceObject(true);
-        oas=new HashSet<>();
+        ids=new HashSet<>();
     }
     
-    public Set<ObjectAddress> getObjectAddress(){
-    	return oas;
+    public Set<String> getIds(){
+    	return ids;
     }
     
     @Override
@@ -34,7 +34,7 @@ public class CompactObjectOutputStream extends ObjectOutputStream {
     		ObjectAddress oa=registry.getObjectAddress(obj);
     		if (oa!=null){
     			//return the object @ when the object is exported and we are trying to serialize it
-    			oas.add(oa);
+    			ids.add(oa.getId());
     			return oa;
     		}
     	}

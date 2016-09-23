@@ -63,7 +63,7 @@ public class ClientConnection implements PooledObjectFactory<Channel>{
 			  .handler(new ChannelInitializer<Channel>() {
 				  public void initChannel(Channel c) throws Exception{
 					  c.pipeline().addLast(new ObjectDecoder(server,server.getClassLoader()));
-					  c.pipeline().addLast(new ObjectEncoder(registry));
+					  c.pipeline().addLast(new ObjectEncoder(server,registry,remoteServerAddress));
 					  c.pipeline().addLast(new ClientDecoder(server.getClientInvoker()));
 					  c.pipeline().addLast(new ClientErrorHandler(server.getClientInvoker()));
 				  }

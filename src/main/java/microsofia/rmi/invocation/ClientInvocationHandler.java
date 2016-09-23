@@ -2,6 +2,7 @@ package microsofia.rmi.invocation;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 public class ClientInvocationHandler implements InvocationHandler{
 	private transient ClientInvoker clientInvoker;
@@ -36,10 +37,21 @@ public class ClientInvocationHandler implements InvocationHandler{
 	
 	@Override
 	public boolean equals(Object o){
-		if (!(o instanceof ClientInvocationHandler)){
+		ClientInvocationHandler cih=null;
+		
+		InvocationHandler ih=Proxy.getInvocationHandler(o);
+		if (ih!=null){
+			if (ih instanceof ClientInvocationHandler){
+				cih=(ClientInvocationHandler)ih;
+			}
+
+		}else if (o instanceof ClientInvocationHandler){
+			cih=(ClientInvocationHandler)o;
+		}
+
+		if (cih==null){
 			return false;
 		}
-		ClientInvocationHandler ih=(ClientInvocationHandler)o;
-		return objectAddress.equals(ih.objectAddress);
+		return objectAddress.equals(cih.objectAddress);
 	}
 }

@@ -8,20 +8,21 @@ import java.util.concurrent.Future;
 
 import io.netty.channel.ChannelHandlerContext;
 import microsofia.rmi.Registry;
+import microsofia.rmi.Server;
 
 public class ServerInvoker {
+	private Server server;
 	private Registry registry; 
 	private ClassesMetada classesMetada;
-	private ExecutorService executorService;
 	
-	public ServerInvoker(Registry registry,ClassesMetada classesMetada){
+	public ServerInvoker(Server server,Registry registry,ClassesMetada classesMetada){
+		this.server=server;
 		this.registry=registry;
 		this.classesMetada=classesMetada;
-		this.executorService=Executors.newCachedThreadPool();
 	}
 
 	public Future<InvocationResult> invoke(final ChannelHandlerContext ctx,final InvocationRequest request){
-		Future<InvocationResult> future=executorService.submit(new Callable<InvocationResult>() {
+		Future<InvocationResult> future=server.getExecutorService().submit(new Callable<InvocationResult>() {
 			@Override
 			public InvocationResult call() throws InterruptedException{
 				InvocationResult invocationResult=new InvocationResult();//TODO: name the thread?
@@ -43,9 +44,5 @@ public class ServerInvoker {
 			}
 		});
 		return future;
-	}
-	
-	public void stop(){
-		executorService.shutdown();
 	}
 }

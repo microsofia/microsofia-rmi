@@ -70,6 +70,14 @@ public class Registry implements IRegistry{
 		}
 	}
 	
+	public void fireServerDisconnected(ServerAddress remoteServerAddress,String id){
+		//TODO
+	}
+
+	public void fireServerDisconnected(ServerAddress remoteServerAddress,String[] id){
+		//TODO
+	}
+	
 	private static class ObjectInfo{
 		public ObjectAddress address;
 		public Object object;

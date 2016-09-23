@@ -42,7 +42,9 @@ public class ClientConnections {
 	//TODO implement remote GC so that we can free client connections
 	public void killClientConnection(ServerAddress adr){
 		ClientConnection cc=connections.remove(adr);
-		cc.stop();
+		if (cc!=null){
+			cc.stop();
+		}
 	}
 	
 	public void stop(){
