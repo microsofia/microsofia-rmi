@@ -2,6 +2,9 @@ package microsofia.rmi;
 
 import java.io.Serializable;
 
+/**
+ * The address of a server composed of a host and a port.
+ * */
 public class ServerAddress implements Serializable{
 	private static final long serialVersionUID = 0L;
 	private String host;
@@ -15,18 +18,30 @@ public class ServerAddress implements Serializable{
 		this.port=port;
 	}	
 	
+	/**
+	 * Returns the host of the server.
+	 * */
 	public String getHost() {
 		return host;
 	}
 
+	/**
+	 * Sets the host of the server.
+	 * */
 	public void setHost(String host) {
 		this.host = host;
 	}
 
+	/**
+	 * Returns the port of the server.
+	 * */
 	public int getPort() {
 		return port;
 	}
 
+	/**
+	 * Sets the port of the server.
+	 * */
 	public void setPort(int port) {
 		this.port = port;
 	}

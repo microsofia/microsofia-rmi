@@ -2,53 +2,73 @@ package microsofia.rmi;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
+/**
+ * The configuration of the server. This object should be used in order to configure the server, before its creation.
+ * Once it is created, then it is too late.
+ * */
 public class ServerConfiguration {
-    protected static final long GC_TIMEOUT 		 = 10000;//TODO 20 * 60000;
-    protected static final long GCCLIENT_TIMEOUT = 1000; //TODO 2 * 60000;
-    protected static final int GCCLIENT_EXCEPTION_THRESHOLD = 10;
+    protected static final long SERVER_GC_TIMEOUT 		 	= 10000;//TODO 20 * 60000;
+    protected static final long CLIENT_GC_PERIOD 			= 1000; //TODO 2 * 60000;
+    protected static final int CLIENT_GC_EXCEPTION_THRESHOLD = 10;
 	private GenericObjectPoolConfig clientConnectionsConfig;
-	private Long gcTimeout;
-    private Long gcClientTimeout;
-    private Integer gcClientExceptionThreshold;
+	private Long serverGCTimeout;
+    private Long clientGCPeriod;
+    private Integer clientGCExceptionThreshold;
 
     public ServerConfiguration(){
 		clientConnectionsConfig=new GenericObjectPoolConfig();
     }
     
+    /**
+     * Configuration object of the pool containing the clients channels.
+     * */
     public GenericObjectPoolConfig getClientConnectionsConfig(){
 		return clientConnectionsConfig;
 	}
 
-    public long getGcTimeout() {
-        if (gcTimeout == null) {
-            gcTimeout = GC_TIMEOUT;
+    /**
+     * Time out used by the server GC in order to check if the client is still alive and interested in its exported object.
+     * Default is 20 mn. If the client doesn't ping between that period, the server will consider that the client is dead and
+     * it will notify the registered listeners.
+     * 
+     * */
+    public long getServerGCTimeout() {
+        if (serverGCTimeout == null) {
+            serverGCTimeout = SERVER_GC_TIMEOUT;
         }
-        return gcTimeout;
+        return serverGCTimeout;
     }
 
-    public void setGcTimeout(long gcTimeout) {
-        this.gcTimeout = gcTimeout;
+    public void setServerGCTimeout(long t) {
+        this.serverGCTimeout = t;
     }
 
-    public long getGcClientTimeout() {
-        if (gcClientTimeout == null) {
-            gcClientTimeout = GCCLIENT_TIMEOUT;
+    /**
+     * Period used by the client GC in order to ping the server and inform him of the exported objects he is interested in.
+     * Default value is 2mn
+     * */
+    public long getClientGCPeriod() {
+        if (clientGCPeriod == null) {
+            clientGCPeriod = CLIENT_GC_PERIOD;
         }
-        return gcClientTimeout;
+        return clientGCPeriod;
     }
 
-    public void setGcClientTimeout(long gcClientTimeout) {
-        this.gcClientTimeout = gcClientTimeout;
+    public void setClientGCPeriod(long t) {
+        this.clientGCPeriod = t;
     }
     
-    public int getGcClientExceptionThreshold() {
-        if (gcClientExceptionThreshold == null) {
-            gcClientExceptionThreshold = GCCLIENT_EXCEPTION_THRESHOLD;
+    /**
+     * Threshold used by client GC before considering that server is dead. Default value is 10.
+     * */
+    public int getClientGCExceptionThreshold() {
+        if (clientGCExceptionThreshold == null) {
+            clientGCExceptionThreshold = CLIENT_GC_EXCEPTION_THRESHOLD;
         }
-        return gcClientExceptionThreshold;
+        return clientGCExceptionThreshold;
     }
 
-    public void setGcClientExceptionThreshold(int gcClientExceptionThreshold) {
-        this.gcClientExceptionThreshold = gcClientExceptionThreshold;
+    public void setClientGCExceptionThreshold(int t) {
+        this.clientGCExceptionThreshold = t;
     }
 }
