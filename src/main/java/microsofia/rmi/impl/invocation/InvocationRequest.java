@@ -2,6 +2,8 @@ package microsofia.rmi.impl.invocation;
 
 import java.io.Serializable;
 
+import microsofia.rmi.ServerAddress;
+
 /**
  * Between a client (that is also a server) and a server, only InvocationRequest and InvocationResult are marshalled and 
  * unmarshalled. InvocationRequest represents a client call.
@@ -25,6 +27,23 @@ public class InvocationRequest implements Serializable{
 		this.objectId=objectId;
 		this.method=method;
 		this.args=args;
+	}
+	
+	/**
+	 * Create an InvocationRequest used at startup to send low level message to set the client server address
+	 * */
+	public static InvocationRequest createSetServerAddressRequest(ServerAddress serverAddress){
+		return new InvocationRequest(-1, null, 0, new Object[]{serverAddress});
+	}
+	
+	/**
+	 * Checks if the received request is a low level message that is used to set the client server address
+	 * */
+	public static ServerAddress isSetServerAddressRequest(InvocationRequest request){
+		if (request.getId()==-1){
+			return (ServerAddress)request.getArgs()[0];
+		}
+		return null;
 	}
 	
 	/**

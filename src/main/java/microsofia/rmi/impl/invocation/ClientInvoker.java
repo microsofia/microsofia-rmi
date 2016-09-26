@@ -1,7 +1,10 @@
 package microsofia.rmi.impl.invocation;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -92,13 +95,16 @@ public class ClientInvoker implements IClientInvoker{
 		
 			//we flush the request to the server
 			channel.writeAndFlush(invocationRequest).sync();
+
+			//release the channel in any case
+			cc.returnChannel(channel);
 		}catch(Throwable th){
 			//if an exception happens, then remove it from memory
 			removeRequest(id);
+			
+			//close the channel
+			cc.invalidateChannel(channel);
 			throw th;
-		}finally{
-			//release the channel in any case
-			cc.returnChannel(channel);
 		}
 
 		//wait for the answer arrival
@@ -123,7 +129,19 @@ public class ClientInvoker implements IClientInvoker{
 		//there is an answer
 		if (req.result.getThrowable()!=null){
 			//it is an exception :(
-			throw req.result.getThrowable();//TODO merge the stack traces
+			Throwable th=req.result.getThrowable();
+			
+			//we play with the stack trace to have something readable
+            List<StackTraceElement> serverStackTrace = Arrays.asList(th.getStackTrace());
+            List<StackTraceElement> clientStackTrace = Arrays.asList(Thread.currentThread().getStackTrace());
+            List<StackTraceElement> newClientStackTrace = new ArrayList<StackTraceElement>(clientStackTrace);
+            newClientStackTrace.remove(0);
+            List<StackTraceElement> newServerStackTrace = new ArrayList<StackTraceElement>(serverStackTrace);
+            newServerStackTrace.addAll(newClientStackTrace);
+            
+            th.setStackTrace(newServerStackTrace.toArray(new StackTraceElement[0]));
+            
+            throw th;
 		}
 		//no exception :)
 		return req.result.getResult();

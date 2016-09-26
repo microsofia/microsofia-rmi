@@ -45,7 +45,9 @@ public class ClientConnections {
 		return con;
 	}
 	
-	//TODO implement remote GC so that we can free client connections
+	/**
+	 * Called to free ClientConnection when there is no more client channel opened to the remote server.
+	 * */
 	public void killClientConnection(ServerAddress adr){
 		ClientConnection cc=connections.remove(adr);
 		if (cc!=null){

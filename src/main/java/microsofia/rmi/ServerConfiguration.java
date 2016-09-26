@@ -7,8 +7,8 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
  * Once it is created, then it is too late.
  * */
 public class ServerConfiguration {
-    protected static final long SERVER_GC_TIMEOUT 		 	= 10000;//TODO 20 * 60000;
-    protected static final long CLIENT_GC_PERIOD 			= 1000; //TODO 2 * 60000;
+    protected static final long SERVER_GC_TIMEOUT 		 	= 20 * 60000;
+    protected static final long CLIENT_GC_PERIOD 			= 2 * 60000;
     protected static final int CLIENT_GC_EXCEPTION_THRESHOLD = 10;
 	private GenericObjectPoolConfig clientConnectionsConfig;
 	private Long serverGCTimeout;

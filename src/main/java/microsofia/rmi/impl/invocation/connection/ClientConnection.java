@@ -2,6 +2,8 @@ package microsofia.rmi.impl.invocation.connection;
 
 import javax.inject.Inject;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.PooledObjectFactory;
@@ -14,6 +16,7 @@ import com.google.inject.name.Named;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -23,6 +26,7 @@ import microsofia.rmi.impl.IInjectorProvider;
 import microsofia.rmi.impl.handler.ClientErrorHandler;
 import microsofia.rmi.impl.handler.codec.serialization.ObjectDecoder;
 import microsofia.rmi.impl.handler.codec.serialization.ObjectEncoder;
+import microsofia.rmi.impl.invocation.InvocationRequest;
 import microsofia.rmi.implhandler.codec.ClientDecoder;
 
 /**
@@ -30,9 +34,13 @@ import microsofia.rmi.implhandler.codec.ClientDecoder;
  * remote calls. A pool of channel is created in order to reuse as much as possible the already opened channels. 
  * */
 public class ClientConnection implements PooledObjectFactory<Channel>{
+	private static Log log=LogFactory.getLog(ClientConnection.class);
 	//the ClientConnections containing the current ClientConnection
 	@Inject
 	private ClientConnections clientConnections;
+	//the local server address
+	@Inject
+	private ServerAddress serverAddress;
 	//the remote server address
 	private ServerAddress remoteServerAddress;
 	//the EventLoopGroup used for all Netty bootstraping
@@ -57,7 +65,7 @@ public class ClientConnection implements PooledObjectFactory<Channel>{
 	//lazy pool initialization
 	private synchronized ObjectPool<Channel> getPool(){
 		if (pool==null){
-			pool=new GenericObjectPool<>(this, config.getClientConnectionsConfig());			
+			pool=new GenericObjectPool<>(this, config.getClientConnectionsConfig());	
 		}
 		return pool;
 	}
@@ -77,6 +85,17 @@ public class ClientConnection implements PooledObjectFactory<Channel>{
 	}
 	
 	/**
+	 * Invalidates a Channel taken from the pool
+	 * */
+	public void invalidateChannel(Channel channel){
+		try{
+			getPool().invalidateObject(channel);
+		}catch(Exception e){
+			log.error(e,e);
+		}
+	}
+
+	/**
 	 * Returns back a channel in the pool
 	 * */
 	public void returnChannel(Channel channel) throws Exception{
@@ -90,6 +109,17 @@ public class ClientConnection implements PooledObjectFactory<Channel>{
 	public void stop(){
 		getPool().close();
 	}
+	
+	/**
+	 * Called when a Channel is closed.
+	 * */
+    public void channelClosed(Channel channel, Throwable cause){
+    	synchronized(clientConnections){
+    		if (pool.getNumActive()==0){//there is no more borrowed channel, remove the ClientConnection from its parent
+    			clientConnections.killClientConnection(remoteServerAddress);
+    		}
+    	}
+    }
 
 	/**
 	 * Implementation of the pool.
@@ -104,8 +134,7 @@ public class ClientConnection implements PooledObjectFactory<Channel>{
 			  .handler(new ChannelInitializer<Channel>() {
 				  public void initChannel(Channel c) throws Exception{
 					  Injector injector=provider.get();
-					  //TODO add a handler to marshall the local server address
-
+					  
 					  c.pipeline().addLast(injector.getInstance(ObjectDecoder.class));
 					  
 					  ObjectEncoder oe=new ObjectEncoder(remoteServerAddress);
@@ -113,11 +142,17 @@ public class ClientConnection implements PooledObjectFactory<Channel>{
 					  c.pipeline().addLast(oe);
 					  
 					  c.pipeline().addLast(injector.getInstance(ClientDecoder.class));
-					  c.pipeline().addLast(injector.getInstance(ClientErrorHandler.class));
+					  
+					  ClientErrorHandler clientErrorHandler=new ClientErrorHandler(ClientConnection.this);
+					  injector.injectMembers(clientErrorHandler);
+					  c.pipeline().addLast(clientErrorHandler);
 				  }
 			});
 			
 		ChannelFuture future=client.connect().sync();
+		
+		//before using the channel, we first send a low level message in order to set the correct client server address
+		future.channel().writeAndFlush(InvocationRequest.createSetServerAddressRequest(serverAddress)).sync();
 		return new DefaultPooledObject<Channel>(future.channel());
 	}
 

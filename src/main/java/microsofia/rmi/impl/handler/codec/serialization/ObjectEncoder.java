@@ -30,10 +30,18 @@ public class ObjectEncoder extends MessageToByteEncoder<Serializable> {
     private ServerAddress remoteServerAddress;
 
     public ObjectEncoder(ServerAddress remoteServerAddress){
-    	this.remoteServerAddress=remoteServerAddress;
+    	this.setRemoteServerAddress(remoteServerAddress);
     }
     
-    @Override
+    public ServerAddress getRemoteServerAddress() {
+		return remoteServerAddress;
+	}
+
+	public void setRemoteServerAddress(ServerAddress remoteServerAddress) {
+		this.remoteServerAddress = remoteServerAddress;
+	}
+
+	@Override
     protected void encode(ChannelHandlerContext ctx, Serializable msg, ByteBuf out) throws Exception {
         int startIdx = out.writerIndex();
 
@@ -48,13 +56,7 @@ public class ObjectEncoder extends MessageToByteEncoder<Serializable> {
         int endIdx = out.writerIndex();
 
         out.setInt(startIdx, endIdx - startIdx - 4);
-        ServerAddress tmp=remoteServerAddress;
-        if (tmp==null){//TODO
-        	InetSocketAddress adr=(InetSocketAddress)ctx.channel().remoteAddress();
-        	tmp=new ServerAddress(adr.getHostName(),adr.getPort());
-        }
-        
         //notifies the local server GC of the encountered client server and the objects it is interested in
-        serverGC.add(oout.getIds(),tmp);
+        serverGC.add(oout.getIds(),remoteServerAddress);
     }
 }

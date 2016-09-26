@@ -93,7 +93,6 @@ public class ServerImpl extends Server implements IServerImpl{
 			  .childHandler(new ChannelInitializer<Channel>() {
 				  public void initChannel(Channel c) throws Exception{
 					  Injector injector=provider.get();
-					  //TODO add a handler to un/marshal the client remote address
 
 					  c.pipeline().addLast(injector.getInstance(ServerErrorHandler.class));
 					  c.pipeline().addLast(injector.getInstance(ObjectDecoder.class));
@@ -183,6 +182,7 @@ public class ServerImpl extends Server implements IServerImpl{
 		});
 		
 		IRegistry reg2=server11.getRegistry();
+
 		System.out.println("reg1=="+reg1);
 		System.out.println("reg2=="+reg2);
 		System.out.println("reg1.equals(reg2)=="+reg1.equals(reg2));

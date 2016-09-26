@@ -31,28 +31,34 @@ public class ServerInvoker implements IServerInvoker{
 		Future<InvocationResult> future=executorService.submit(new Callable<InvocationResult>() {
 			@Override
 			public InvocationResult call() throws InterruptedException{
-				InvocationResult invocationResult=new InvocationResult();//TODO: name the thread?
-				
-				//setting the result id as the request id
-				invocationResult.setId(request.getId());
-
+				String oldName=Thread.currentThread().getName();
 				try{
-					Object o=registry.getObject(request.getObjectId());
-					if (o==null){
-						//the object is not exported
-						throw new IllegalStateException("Object with id "+request.getObjectId()+" is not exported anymore.");
-					}
+					Thread.currentThread().setName("Request: "+request.getId()+", Client: "+ctx.channel().remoteAddress()+", Server: "+ctx.channel().localAddress());
+					InvocationResult invocationResult=new InvocationResult();
 					
-					Method method=classesMetada.getMethod(o.getClass(), request.getMethod());
-					Object result=method.invoke(o, request.getArgs());
-					invocationResult.setResult(result);
-				}catch(Throwable th){
-					//an error happened, it should be sent back to the client
-					invocationResult.setThrowable(th);
+					//setting the result id as the request id
+					invocationResult.setId(request.getId());
+	
+					try{
+						Object o=registry.getObject(request.getObjectId());
+						if (o==null){
+							//the object is not exported
+							throw new IllegalStateException("Object with id "+request.getObjectId()+" is not exported anymore.");
+						}
+						
+						Method method=classesMetada.getMethod(o.getClass(), request.getMethod());
+						Object result=method.invoke(o, request.getArgs());
+						invocationResult.setResult(result);
+					}catch(Throwable th){
+						//an error happened, it should be sent back to the client
+						invocationResult.setThrowable(th);
+					}
+	
+					ctx.writeAndFlush(invocationResult).sync();
+					return invocationResult;
+				}finally{
+					Thread.currentThread().setName(oldName);
 				}
-
-				ctx.writeAndFlush(invocationResult).sync();
-				return invocationResult;
 			}
 		});
 		return future;
