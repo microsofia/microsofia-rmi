@@ -123,7 +123,7 @@ public class ClientInvoker implements IClientInvoker{
 		//there is an answer
 		if (req.result.getThrowable()!=null){
 			//it is an exception :(
-			throw req.result.getThrowable();
+			throw req.result.getThrowable();//TODO merge the stack traces
 		}
 		//no exception :)
 		return req.result.getResult();

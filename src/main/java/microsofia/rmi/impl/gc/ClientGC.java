@@ -68,20 +68,20 @@ public class ClientGC implements IClientGC{
                 serverInfo = new ServerInfo(remoteServerAddress);
                 serverInfos.put(remoteServerAddress, serverInfo);
             }
-            serverInfo.export(oa.getId());
+            serverInfo.add(oa.getId());
         }
     }
 
     /**
      * Stop the pinging. Called at the shutdown of the server.
      * */
-    public void unexport() {
+    public void stop() {
         ServerInfo[] si = null;
         synchronized (this) {
             si = serverInfos.values().toArray(new ServerInfo[0]);
         }
         for (ServerInfo i : si) {
-            i.unexport();
+            i.stop();
         }
     }
 
@@ -112,7 +112,7 @@ public class ClientGC implements IClientGC{
         /**
          * Adding an object id for that remote server
          * */
-        public void export(String id) {
+        public void add(String id) {
             if (ids.size() == 0) {
                 scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(this, serverConfiguration.getClientGCPeriod(),serverConfiguration.getClientGCPeriod(), TimeUnit.MILLISECONDS);
             }
@@ -122,10 +122,10 @@ public class ClientGC implements IClientGC{
         /**
          * Removing an object id for that remote server
          * */
-        public void unexport(String id) {
+        public void stop(String id) {
             ids.remove(id);
             if (ids.size() == 0) {
-                unexport();
+                stop();
             }
         }
 
@@ -152,7 +152,7 @@ public class ClientGC implements IClientGC{
                     if (log.isDebugEnabled()) {
                         log.debug(ServerInfo.this.toString()+": pinging at " + remoteServerAddress + " failed after " + gcExceptionCount + " attempts. The remote address will no longer be pinged. The last received exception follows", e);
                     }
-                    unexport();
+                    stop();
                     return;
                 }
                 return;
@@ -170,13 +170,13 @@ public class ClientGC implements IClientGC{
                     if (log.isDebugEnabled()) {
                         log.debug(ServerInfo.this.toString()+": pinging informed that objects were unexported from " + remoteServerAddress + ", unexporting object of ID: " + idsArray[i]);
                     }
-                    unexport(idsArray[i]);
+                    stop(idsArray[i]);
                 }
             }
         }
 
         //removing the ServerInfo from ClientGC. This is used when the server is considered dead.
-        public void unexport() {
+        public void stop() {
             synchronized (this) {
                 serverInfos.remove(remoteServerAddress);
                 if (future != null) {

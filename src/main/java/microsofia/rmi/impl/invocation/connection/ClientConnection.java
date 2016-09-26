@@ -104,6 +104,7 @@ public class ClientConnection implements PooledObjectFactory<Channel>{
 			  .handler(new ChannelInitializer<Channel>() {
 				  public void initChannel(Channel c) throws Exception{
 					  Injector injector=provider.get();
+					  //TODO add a handler to marshall the local server address
 
 					  c.pipeline().addLast(injector.getInstance(ObjectDecoder.class));
 					  

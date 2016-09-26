@@ -87,32 +87,32 @@ public class ServerGC implements IServerGC{
     /**
      * Removes any reference and structure that the server GC had for the client server address
      * */
-    public void unexport(ServerAddress adr) {
+    public void remove(ServerAddress adr) {
         ServerInfo serverInfo;
         synchronized (this) {
             serverInfo = serverInfos.get(adr);
         }
         if (serverInfo != null) {
-            serverInfo.unexport();
+            serverInfo.stop();
         }
     }
 
     /**
      * Frees resources and running tasks. Called at server shutdown.
      * */
-    public void unexport() {
+    public void stop() {
         ServerInfo[] infos = null;
         synchronized (this) {
             infos = serverInfos.values().toArray(new ServerInfo[0]);
         }
         for (ServerInfo epi : infos) {
-            epi.unexport();
+            epi.stop();
         }
     }
 
     @Override
     public void clientDead(ServerAddress adr) throws Throwable {
-        unexport(adr);
+        remove(adr);
     }
 
     //add interest for one object id
@@ -176,7 +176,7 @@ public class ServerGC implements IServerGC{
         }
 
         //remove the object as an interest
-        public void unexport(String id) {
+        public void remove(String id) {
         	boolean cont=false;
             int size;
             synchronized (this) {
@@ -186,13 +186,13 @@ public class ServerGC implements IServerGC{
             if (cont) {
                 if (size == 0) {
                 	//if it was the last one, remove the ServerInfo
-                    unexport();
+                    stop();
                 }
             }
         }
 
         //remove the ServerInfo from ServerGC. The method is called when client has no more interest (died or stopped)
-        public void unexport() {
+        public void stop() {
             String[] ids;
             synchronized (this) {
                 ids= exportedObjects.toArray(new String[0]);
@@ -250,7 +250,7 @@ public class ServerGC implements IServerGC{
                                         if (log.isDebugEnabled()) {
                                         	log.debug(ServerInfo.this+": GC was not pinged on time by client.");
                                         }
-                                        unexport();
+                                        stop();
                                     }
                                 } finally {
                                     Thread.currentThread().setName(oldName);
