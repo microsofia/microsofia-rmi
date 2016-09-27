@@ -1,4 +1,4 @@
-package microsofia.rmi.implhandler.codec;
+package microsofia.rmi.impl.handler.codec;
 
 import java.util.List;
 

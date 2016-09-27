@@ -28,12 +28,12 @@ import microsofia.rmi.impl.gc.IClientGC;
 import microsofia.rmi.impl.gc.IServerGC;
 import microsofia.rmi.impl.gc.ServerGC;
 import microsofia.rmi.impl.handler.ServerErrorHandler;
+import microsofia.rmi.impl.handler.codec.ServerDecoder;
 import microsofia.rmi.impl.handler.codec.serialization.ObjectDecoder;
 import microsofia.rmi.impl.handler.codec.serialization.ObjectEncoder;
 import microsofia.rmi.impl.invocation.ClientInvocationHandler;
 import microsofia.rmi.impl.invocation.IClientInvoker;
 import microsofia.rmi.impl.invocation.ObjectAddress;
-import microsofia.rmi.implhandler.codec.ServerDecoder;
 
 /**
  * Server implementation.

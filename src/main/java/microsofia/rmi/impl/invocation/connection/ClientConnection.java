@@ -23,10 +23,10 @@ import microsofia.rmi.ServerAddress;
 import microsofia.rmi.ServerConfiguration;
 import microsofia.rmi.impl.IInjectorProvider;
 import microsofia.rmi.impl.handler.ClientErrorHandler;
+import microsofia.rmi.impl.handler.codec.ClientDecoder;
 import microsofia.rmi.impl.handler.codec.serialization.ObjectDecoder;
 import microsofia.rmi.impl.handler.codec.serialization.ObjectEncoder;
 import microsofia.rmi.impl.invocation.InvocationRequest;
-import microsofia.rmi.implhandler.codec.ClientDecoder;
 
 /**
  * Encapsulates all the connections/channels opened by the current server to a remote server, while doing
