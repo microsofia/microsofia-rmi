@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 import java.io.StreamCorruptedException;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Set;
@@ -52,22 +53,22 @@ public class CompactObjectInputStream extends ObjectInputStream {
     @Override
     protected Object resolveObject(Object obj) throws IOException {
     	if (obj!=null){
-    		if (obj instanceof ObjectAddress){
-	    		ObjectAddress oa=(ObjectAddress)obj;
-	    		if (oa.getServerAddress().equals(serverAddress)){
-	    			//the remote object @ is pointing to the local server. So we replace with the real object
-	    			return registry.getObject(oa.getId());
+    		if (Proxy.isProxyClass(obj.getClass())){
+    			InvocationHandler invocationHandler=Proxy.getInvocationHandler(obj);
+    			if (invocationHandler instanceof ClientInvocationHandler){
+    				//when a remote object/Proxy is read, set the current server in order to be able to do remote calls
+    				ClientInvocationHandler ih=(ClientInvocationHandler)invocationHandler;
+    				ih.setClientInvoker(clientInvoker);
 
-	    		}else{
-	    			oas.add(oa);
-	    			//if it is pointing to a remote object, we replace the @ object by a Proxy
-	    			return Proxy.newProxyInstance(classLoader, oa.getInterfaces(), new ClientInvocationHandler(clientInvoker, oa));
-	    		}
-    		}
-    		if (obj instanceof ClientInvocationHandler){
-    			//when a remote object/Proxy is read, set the current server in order to be able to do remote calls
-    			ClientInvocationHandler ih=(ClientInvocationHandler)obj;
-    			ih.setClientInvoker(clientInvoker);
+    				if (ih.getObjectAddress().getServerAddress().equals(serverAddress)){
+    					//the remote object proxy is pointing to the local server. So we replace with the real object
+    					return registry.getObject(ih.getObjectAddress().getId());
+
+    				}else{
+    					//we add an interest to the local server
+    					oas.add(ih.getObjectAddress());
+    				}
+    			}
     		}
     	}
         return obj;

@@ -9,7 +9,6 @@ import microsofia.rmi.impl.IInjectorProvider;
 import microsofia.rmi.impl.gc.ServerGC;
 
 import java.io.Serializable;
-import java.net.InetSocketAddress;
 
 import javax.inject.Inject;
 import com.google.inject.name.Named;

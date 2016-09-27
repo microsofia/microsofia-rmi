@@ -3,7 +3,9 @@ package microsofia.rmi;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -118,10 +120,10 @@ public class ServerBuilder {
 	 * */
 	public Server build(){
 		if (es==null){
-			es=Executors.newCachedThreadPool();
+			es=new ThreadPoolExecutor(0, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 		}
 		if (ses==null){
-			ses=Executors.newScheduledThreadPool(0);
+			ses=Executors.newScheduledThreadPool(3);
 		}
 		final IInjectorProvider provider=new IInjectorProvider() {
 

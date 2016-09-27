@@ -94,8 +94,6 @@ public class ClientGC implements IClientGC{
         private IServerGC gc;
         //how many exceptions already happened with that server
         private int gcExceptionCount;
-        //is something already running?
-        private AtomicBoolean isRunning;
         //set of the objects ids that the local client is interested in and is pinging the remote server with
         private Set<String> ids;
         //remote server address the client is pinging
@@ -106,7 +104,6 @@ public class ClientGC implements IClientGC{
             this.remoteServerAddress = remoteServerAddress;
             this.ids= Collections.synchronizedSet(new HashSet<String>());
             this.gc = server.lookup(remoteServerAddress, IServerGC.class);
-            this.isRunning = new AtomicBoolean();
         }
 
         /**
@@ -189,19 +186,17 @@ public class ClientGC implements IClientGC{
 
         //this method is called periodically
         @Override
-        public void run() {
-            if (!isRunning.get()) {
+        public synchronized void run() {
+            if (future==null || future.isDone()) {
                 future = executorService.submit(new Callable<Void>() {
                     @Override
                     public Void call() {
                         String oldName = Thread.currentThread().getName();
                         try {
-                            isRunning.set(true);
                             Thread.currentThread().setName("ClientGC Thread - " + ServerInfo.this.toString());
                             ping();
                         } finally {
                             Thread.currentThread().setName(oldName);
-                            isRunning.set(false);
                         }
                         return null;
                     }

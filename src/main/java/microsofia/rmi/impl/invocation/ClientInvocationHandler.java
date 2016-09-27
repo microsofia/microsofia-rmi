@@ -1,5 +1,6 @@
 package microsofia.rmi.impl.invocation;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -7,7 +8,9 @@ import java.lang.reflect.Proxy;
 /**
  * Invocation handler used within all the created Proxies.
  * */
-public class ClientInvocationHandler implements InvocationHandler{
+public class ClientInvocationHandler implements InvocationHandler, Serializable{
+	private static final long serialVersionUID = 0L;
+
 	/**
 	 * The clientInvoker of the local server. It is transient as it points to the local server.
 	 * When unmarshalled by any server, it is set to the local one.
@@ -26,6 +29,10 @@ public class ClientInvocationHandler implements InvocationHandler{
 		this.clientInvoker=clientInvoker;
 	}
 	
+	public ObjectAddress getObjectAddress() {
+		return objectAddress;
+	}
+
 	/**
 	 * If the method is an Object one, delegate to the current object.
 	 * If not, do a remote call.
@@ -35,17 +42,17 @@ public class ClientInvocationHandler implements InvocationHandler{
 		if (method.getDeclaringClass().equals(Object.class)){
 			return method.invoke(this, args);
 		}
-		return clientInvoker.invoke(objectAddress,method,args);
+		return clientInvoker.invoke(getObjectAddress(),method,args);
 	}
 
 	@Override
 	public String toString(){
-		return "Proxy:[ObjectAddress:"+objectAddress+"]";
+		return "Proxy:[ObjectAddress:"+getObjectAddress()+"]";
 	}
 	
 	@Override
 	public int hashCode(){
-		return objectAddress.hashCode();
+		return getObjectAddress().hashCode();
 	}
 	
 	//the following implementation should allow 2 proxies pointing to the same remote object
@@ -67,6 +74,6 @@ public class ClientInvocationHandler implements InvocationHandler{
 		if (cih==null){
 			return false;
 		}
-		return objectAddress.equals(cih.objectAddress);
+		return getObjectAddress().equals(cih.getObjectAddress());
 	}
 }

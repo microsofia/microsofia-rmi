@@ -1,5 +1,6 @@
 package microsofia.rmi.impl;
 
+import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.IdentityHashMap;
@@ -8,6 +9,8 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import microsofia.rmi.ServerAddress;
+import microsofia.rmi.impl.invocation.ClientInvocationHandler;
+import microsofia.rmi.impl.invocation.IClientInvoker;
 import microsofia.rmi.impl.invocation.ObjectAddress;
 
 /**
@@ -21,6 +24,12 @@ public class Registry implements IRegistryImpl{
 	//local server address
 	@Inject
 	private ServerAddress serverAddress;
+	//local classloader used to create proxy
+	@Inject
+	private ClassLoader classLoader;
+	//local client invoker used to create proxy
+	@Inject
+	private IClientInvoker clientInvoker;
 
 	public Registry(){
 		objectInfoByIds=new Hashtable<>();
@@ -65,6 +74,21 @@ public class Registry implements IRegistryImpl{
 		}
 		return null;
 	}
+	
+	/**
+	 * Returns for a given object its proxy.
+	 * */
+	public Object getObjectProxy(Object o){
+		String id=objects.get(o);
+		if (id!=null){
+			ObjectInfo oi=objectInfoByIds.get(id);
+			if (oi==null){
+				return null;
+			}
+			return oi.proxy;
+		}
+		return null;
+	}
 
 	/**
 	 * Export consists only of putting the object in the internal structures.
@@ -95,13 +119,15 @@ public class Registry implements IRegistryImpl{
 	/**
 	 * Holder containing an object and its address
 	 * */
-	private static class ObjectInfo{
+	private class ObjectInfo{
 		public ObjectAddress address;
 		public Object object;
+		public Object proxy;
 		
 		public ObjectInfo(ObjectAddress address,Object object){
 			this.address=address;
 			this.object=object;
+			this.proxy=Proxy.newProxyInstance(classLoader, address.getInterfaces(), new ClientInvocationHandler(clientInvoker, address));
 		}
 	}
 }

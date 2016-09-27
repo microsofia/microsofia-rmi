@@ -23,7 +23,7 @@ public class ClassesMetada {
 	 * @return the hashcode of the method m
 	 * */
 	public synchronized int getHashCode(Class<?> c,Method m){
-		ClassMetadata met=metadas.get(c.getName());
+		ClassMetadata met=metadas.get(c);
 		if (met==null){
 			met=new ClassMetadata(c);
 			metadas.put(c, met);
@@ -39,7 +39,7 @@ public class ClassesMetada {
 	 * @return the method that has h as hashcode
 	 * */
 	public synchronized Method getMethod(Class<?> c,int h){
-		ClassMetadata met=metadas.get(c.getName());
+		ClassMetadata met=metadas.get(c);
 		if (met==null){
 			met=new ClassMetadata(c);
 			metadas.put(c, met);

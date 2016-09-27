@@ -14,6 +14,11 @@ public interface IRegistryImpl extends IRegistry{
 	public ObjectAddress getObjectAddress(Object o);
 
 	/**
+	 * Returns the proxy of the object that will be marshalled
+	 * */
+	public Object getObjectProxy(Object o);
+	
+	/**
 	 * Export in the registry an object with its id and its interfaces
 	 * */
 	public void export(String id,Object o,Class<?>[] interfaces);

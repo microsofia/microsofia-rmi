@@ -133,8 +133,6 @@ public class ServerGC implements IServerGC{
         private Set<String> exportedObjects;
         //the server address of the client
         private ServerAddress remoteServerAddress;
-        //is something already running?
-        private AtomicBoolean isRunning;
         private Future<?> future;
         //times used for pinging
         private long lastPingId;
@@ -144,7 +142,6 @@ public class ServerGC implements IServerGC{
         public ServerInfo(ServerAddress remoteServerAddress) {
             this.exportedObjects = Collections.synchronizedSet(new HashSet<String>());
             this.remoteServerAddress = remoteServerAddress;
-            this.isRunning = new AtomicBoolean();
         }
 
         /**
@@ -234,31 +231,29 @@ public class ServerGC implements IServerGC{
          * Periodically called to check if the client has pinged.
          * */
         @Override
-        public void run() {
+        public synchronized void run() {
 
-            if (!isRunning.get()) {
+            if (future==null || future.isDone()) {
                 future = executorService.submit(new Callable<Void>() {
-                            @Override
-                            public Void call() {
-                                String oldName = Thread.currentThread().getName();
-                                try {
-                                    isRunning.set(true);
-                                    Thread.currentThread().setName("ServerGC Thread - " + ServerInfo.this);
-                                    if (isUpdated()) {
-                                        update();
-                                    } else {
-                                        if (log.isDebugEnabled()) {
-                                        	log.debug(ServerInfo.this+": GC was not pinged on time by client.");
-                                        }
-                                        stop();
-                                    }
-                                } finally {
-                                    Thread.currentThread().setName(oldName);
-                                    isRunning.set(false);
+                    @Override
+                    public Void call() {
+                        String oldName = Thread.currentThread().getName();
+                        try {
+                            Thread.currentThread().setName("ServerGC Thread - " + ServerInfo.this);
+                            if (isUpdated()) {
+                                update();
+                            } else {
+                                if (log.isDebugEnabled()) {
+                                	log.debug(ServerInfo.this+": GC was not pinged on time by client.");
                                 }
-                                return null;
+                                stop();
                             }
-                        });
+                        } finally {
+                            Thread.currentThread().setName(oldName);
+                        }
+                        return null;
+                    }
+                });
             }
         }
 

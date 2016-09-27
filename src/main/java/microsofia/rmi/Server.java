@@ -58,6 +58,13 @@ public abstract class Server implements IServer{
 	public abstract void export(Object o,Class<?> interf);
 	
 	/**
+	 * Unexport the already exported object.
+	 * 
+	 * @param o the object to unexport
+	 * */
+	public abstract void unexport(Object o);
+	
+	/**
 	 * Returns a proxy to a remote object in a given server provided by its address having the 
 	 * interf as interface. The id of the located object will be the interface name.
 	 * The returned proxy is never null even if the remote server is down or the remote object is not exported.

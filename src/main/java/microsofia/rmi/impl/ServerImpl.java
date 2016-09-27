@@ -2,12 +2,13 @@ package microsofia.rmi.impl;
 
 import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.google.inject.Injector;
 import com.google.inject.name.Named;
@@ -22,7 +23,6 @@ import microsofia.rmi.IRegistry;
 import microsofia.rmi.IServer;
 import microsofia.rmi.Server;
 import microsofia.rmi.ServerAddress;
-import microsofia.rmi.ServerBuilder;
 import microsofia.rmi.impl.gc.ClientGC;
 import microsofia.rmi.impl.gc.IClientGC;
 import microsofia.rmi.impl.gc.IServerGC;
@@ -39,6 +39,7 @@ import microsofia.rmi.implhandler.codec.ServerDecoder;
  * Server implementation.
  * */
 public class ServerImpl extends Server implements IServerImpl{
+	private static Log log = LogFactory.getLog(ServerImpl.class);
 	//the registry implementation of the server
 	@Inject
 	private IRegistryImpl registry;
@@ -125,6 +126,11 @@ public class ServerImpl extends Server implements IServerImpl{
 	}
 	
 	@Override
+	public void unexport(Object o){
+		registry.unexport(o);
+	}
+	
+	@Override
     public <T> T lookup(ServerAddress serverAddress, Class<T> interf){
 		ClientInvocationHandler clientInvocationHandler=new ClientInvocationHandler(clientInvoker, new ObjectAddress(serverAddress, interf.getName(), new Class[]{interf}));
 		return interf.cast(Proxy.newProxyInstance(classLoader, new Class[]{interf}, clientInvocationHandler));
@@ -140,54 +146,17 @@ public class ServerImpl extends Server implements IServerImpl{
 	public void stop() throws Throwable{
 		clientGC.stop();
 		serverGC.stop();
-		serverChannel.disconnect().sync();
+		if (serverChannel.isActive()){
+			try{
+				serverChannel.disconnect().sync();
+			}catch(Exception e){
+				log.error(e,e);
+			}
+		}
 		group.shutdownGracefully().sync();
 		clientInvoker.stop();
 		executorService.shutdown();
 		scheduledExecutorService.shutdown();
 
-	}
-	
-	//TODO remove the static main and use unit tests
-	public static void main(String[] argv) throws Throwable{
-		Server server1=new ServerBuilder().host("localhost").port(9999).build();
-		server1.start();
-		
-		Server server2=new ServerBuilder().host("localhost").port(9998).build();
-		server2.start();
-		
-		IServer server11=server2.getServer("localhost",9999);
-		System.out.println(server11);
-
-		IRegistry reg1=server11.getRegistry();
-		System.out.println(reg1);
-		List<Thread> ths=new ArrayList<>();
-		for (int j=0;j<100;j++){
-			ths.add(new Thread(){
-				public void run(){
-					for (int i=0;i<100;i++){
-						for (String id :reg1.getIds()){
-							System.out.println("ID="+id);
-						}
-					}
-				}
-			});
-			ths.get(ths.size()-1).start();
-		}
-		ths.forEach(it->{try {
-				it.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		});
-		
-		IRegistry reg2=server11.getRegistry();
-
-		System.out.println("reg1=="+reg1);
-		System.out.println("reg2=="+reg2);
-		System.out.println("reg1.equals(reg2)=="+reg1.equals(reg2));
-
-		server1.stop();
-		server2.stop();
 	}
 }

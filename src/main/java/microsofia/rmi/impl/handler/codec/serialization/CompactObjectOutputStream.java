@@ -43,9 +43,12 @@ public class CompactObjectOutputStream extends ObjectOutputStream {
         if (!(obj instanceof Serializable)){
     		ObjectAddress oa=registry.getObjectAddress(obj);
     		if (oa!=null){
-    			//return the object @ when the object is exported and we are trying to serialize it
+    			//mark that the current channel is interested in the this object id
     			ids.add(oa.getId());
-    			return oa;
+    			
+    			Object proxy=registry.getObjectProxy(obj);
+    			//return the object proxy when the object is exported and we are trying to serialize it
+    			return proxy;
     		}
     	}
     	return obj;
