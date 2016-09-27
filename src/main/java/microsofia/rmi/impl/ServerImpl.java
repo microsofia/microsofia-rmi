@@ -58,7 +58,7 @@ public class ServerImpl extends Server implements IServerImpl{
 	//Client invoker used to encapsulate client side calls
 	@Inject
 	private IClientInvoker clientInvoker;
-	//ServerGC which checks that the client servers calls and showed their interests in exported objects
+	//ServerGC which checks that the clients are calling and are showing their interests in exported objects
 	@Inject
 	private ServerGC serverGC;
 	//ClientGC which pings other servers to show interests in exported objects

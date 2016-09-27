@@ -34,7 +34,7 @@ import microsofia.rmi.impl.invocation.connection.ClientConnections;
  * 
  * <br>
  * Example:
- * <bre>
+ * <br>
  *<pre>
 	ServerBuilder builder=new ServerBuild().host("localhost").port(9999);
 	Server server=builder.build();
@@ -48,8 +48,6 @@ public class ServerBuilder {
 	private ServerConfiguration serverConfiguration;
 	private ServerAddress serverAddress;
 	private ClassLoader cl;
-	private ExecutorService es;
-	private ScheduledExecutorService ses;
 	private IClientInterestListener clientInterestListener;
 	private Injector injector;
 	
@@ -84,29 +82,13 @@ public class ServerBuilder {
 	}
 
 	/**
-	 * Setting the classloader to used.
+	 * Setting the classloader to use.
 	 * */
 	public ServerBuilder classLoader(ClassLoader cl){
 		this.cl=cl;
 		return this;
 	}
 
-	/**
-	 * Setting the ExecutorServer to use.
-	 * */
-	public ServerBuilder executorService(ExecutorService se){
-		this.es=se;
-		return this;
-	}
-	
-	/**
-	 * Setting the ScheduledExecutorServer to use.
-	 * */
-	public ServerBuilder scheduledExecutorService(ScheduledExecutorService ses){
-		this.ses=ses;
-		return this;
-	}
-	
 	/**
 	 * Setting the client interest listener to use.
 	 * */
@@ -119,12 +101,9 @@ public class ServerBuilder {
 	 * Creates a new Server instance.
 	 * */
 	public Server build(){
-		if (es==null){
-			es=new ThreadPoolExecutor(0, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
-		}
-		if (ses==null){
-			ses=Executors.newScheduledThreadPool(3);
-		}
+		ExecutorService es=new ThreadPoolExecutor(0, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+		ScheduledExecutorService ses=Executors.newScheduledThreadPool(3);
+
 		final IInjectorProvider provider=new IInjectorProvider() {
 
 			@Override

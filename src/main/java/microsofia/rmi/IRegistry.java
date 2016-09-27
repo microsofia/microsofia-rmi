@@ -2,7 +2,7 @@ package microsofia.rmi;
 
 /**
  * The remote interface of the object registry containing all the exported objects of a server.
- * It can be seen as a map which key is the id of the exported object and the value the exported object.
+ * It can be seen as a map which key is the id of the exported object and the value is the exported object.
  * 
  * */
 public interface IRegistry {

@@ -7,6 +7,9 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Testing GC client and server side, with an interest listener.
+ * */
 public class GCTest extends AbstractTest{
 	private Sample sample1=new Sample();
 	private static Set<String> addedIds=new HashSet<>();
@@ -39,13 +42,17 @@ public class GCTest extends AbstractTest{
 	
 	@Test
 	public void testGC() throws Throwable{
+		//show an interest
 		ISample remoteSample1=remoteServer1.getRegistry().getObject(ISample.class,ISample.class.getName());
 		Thread.sleep(3000);
+		//wait for the listener to be notified
 		Assert.assertTrue(addedIds.contains(ISample.class.getName()));
 		
+		//stop the client server
 		localServer2.stop();
-		Thread.sleep(10000);
-		Assert.assertTrue(!removedIds.contains(ISample.class.getName()));		
+		Thread.sleep(15000);
+		//the server should detect it via GC and fire the interest listener
+		Assert.assertTrue(removedIds.contains(ISample.class.getName()));		
 	}
 	
 	@Override

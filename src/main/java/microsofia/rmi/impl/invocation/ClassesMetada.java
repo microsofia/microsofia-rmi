@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Caches for every class, a hashcode of every method.
+ * Caches for every method in a class a hashcode.
  * */
 public class ClassesMetada {
 	//by class, keeps a structure ClassMetadata
@@ -32,7 +32,7 @@ public class ClassesMetada {
 	}
 	
 	/**
-	 * Returns for a given hashcode, the method that corresponds to it in a class
+	 * Returns a method that matches the hashcode in a class
 	 * 
 	 * @param c the class that contains the method we are looking for
 	 * @param h the hashcode of the method

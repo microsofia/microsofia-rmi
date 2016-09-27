@@ -157,7 +157,7 @@ public class ClientConnection implements PooledObjectFactory<Channel>{
 
 	/**
 	 * Implementation of the pool.
-	 * Closed the channel if it is still active.
+	 * Closes the channel if it is still active.
 	 * */
 	@Override
 	public void destroyObject(PooledObject<Channel> p) throws Exception {

@@ -34,7 +34,7 @@ public class ClientInvoker implements IClientInvoker{
 	//id to generate unique request/result ids
 	private AtomicLong requestCount;
 	
-	//Maps used to unblock waiting threads the end of a call
+	//Maps used to unblock threads waiting the end of a call
 	private Map<Long,Request> results;//Request by id
 	private Map<Channel,Request> resultsByChannel;//Request by Channel
 	

@@ -3,6 +3,9 @@ package microsofia.rmi;
 import org.junit.After;
 import org.junit.Before;
 
+/**
+ * Base class for all tests.
+ * */
 public class AbstractTest {
 	protected ServerConfiguration config;
 	protected IClientInterestListener listener;
@@ -14,6 +17,9 @@ public class AbstractTest {
 	protected AbstractTest(){
 	}
 
+	/**
+	 * Sets up 2 servers, server1 and server2, and locate for each its remote proxy.
+	 * */
 	@Before
 	public void setup() throws Throwable{
 		ServerBuilder serverBuilder1=new ServerBuilder();

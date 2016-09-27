@@ -21,7 +21,7 @@ import microsofia.rmi.impl.invocation.ObjectAddress;
 
 /**
  * Inspired by Netty CompactObjectInputStream.
- * It implements the resolveObject method which replaces the ObjectAddress by a Proxy or the real object
+ * It implements the resolveObject method which initializes remote proxy with a handle to the local server.
  * */
 public class CompactObjectInputStream extends ObjectInputStream {
 	//registry of the local server

@@ -3,6 +3,9 @@ package microsofia.rmi;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Testing proxies replacement.
+ * */
 public class ProxyTest extends AbstractTest{
 	private Sample sample1=new Sample();
 	private Sample sample2=new Sample();
@@ -23,7 +26,10 @@ public class ProxyTest extends AbstractTest{
 		ISample remoteSample2=remoteServer2.getRegistry().getObject(ISample.class,ISample.class.getName());
 		ISample sample2Returned=remoteSample1.setSample(sample2);
 		
+		//test that the proxy was replaced by the real object
 		Assert.assertEquals(sample2, sample2Returned);
+		
+		//test that a proxy os sample2 was set in sample1
 		Assert.assertEquals(remoteSample2, sample1.s);
 	}
 	

@@ -3,6 +3,9 @@ package microsofia.rmi;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Testing registry remotly.
+ * */
 public class RegistryTest extends AbstractTest{
 
 	public RegistryTest(){

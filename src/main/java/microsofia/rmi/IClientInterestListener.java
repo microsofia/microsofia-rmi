@@ -1,10 +1,10 @@
 package microsofia.rmi;
 
 /**
- * A listener of the client interests in objects exported by a server.
+ * A listener of client interests in objects exported by a server.
  * When a client receives a Proxy of an exported object, the server considers that the client is interested in this object.
  * The server remembers all the objects in which the client is interested in. 
- * And when the client dies or doesn't ping the server anymore, then the server notifies the listener 
+ * When the client shutdown or doesn't ping the server anymore, the server notifies the listener 
  * that the client is not interested anymore.
  * 
  * */

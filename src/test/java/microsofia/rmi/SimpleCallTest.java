@@ -7,6 +7,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Testing simple cases.
+ * */
 public class SimpleCallTest extends AbstractTest{
 	private Sample sample=new Sample();
 

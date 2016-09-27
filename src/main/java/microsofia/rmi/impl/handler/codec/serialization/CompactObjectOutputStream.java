@@ -15,7 +15,7 @@ import microsofia.rmi.impl.invocation.ObjectAddress;
 
 /**
  * Inspired by Netty CompactObjectOutputStream.
- * It implements the replaceObject method which replaces the exported object by its object address.
+ * It implements the replaceObject method which replaces the exported object by its proxy.
  * */
 public class CompactObjectOutputStream extends ObjectOutputStream {
     static final int TYPE_FAT_DESCRIPTOR = 0;
@@ -33,7 +33,9 @@ public class CompactObjectOutputStream extends ObjectOutputStream {
         ids=new HashSet<>();
     }
     
-    //ids of the encountered exported objects
+    /**
+     * Ids of the encountered exported objects
+     */
     public Set<String> getIds(){
     	return ids;
     }
