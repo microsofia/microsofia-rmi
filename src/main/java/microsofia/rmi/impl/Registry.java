@@ -95,6 +95,9 @@ public class Registry implements IRegistryImpl{
 	 * */
 	@Override
 	public void export(String id,Object o,Class<?>[] interfaces){
+		if (id==null){
+			throw new IllegalArgumentException("Object id for "+o+" is null.");
+		}
 		ObjectInfo oi=new ObjectInfo(new ObjectAddress(serverAddress,id,interfaces), o);
 		objectInfoByIds.put(id, oi);
 		objects.put(o, id);

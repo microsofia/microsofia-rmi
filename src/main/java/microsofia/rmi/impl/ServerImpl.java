@@ -150,7 +150,7 @@ public class ServerImpl extends Server implements IServerImpl{
 			try{
 				serverChannel.disconnect().sync();
 			}catch(Exception e){
-				log.error(e,e);
+				log.debug(e,e);
 			}
 		}
 		group.shutdownGracefully().sync();

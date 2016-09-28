@@ -63,7 +63,7 @@ public class ClassesMetada {
 		ClassMetadata(Class<?> c){
 			methods=new HashMap<>();
 			hashCodes=new HashMap<>();
-			for (Method m : c.getDeclaredMethods()){
+			for (Method m : c.getMethods()){
 				int h=getHashCode(m);
 				methods.put(h, m);
 				hashCodes.put(m, h);
