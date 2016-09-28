@@ -1,4 +1,4 @@
-A simple RMI implementation based on (powerful) [Netty](https://github.com/netty/netty) 
+An RMI implementation based on (powerful) [Netty](https://github.com/netty/netty) 
 
 
 #Example
