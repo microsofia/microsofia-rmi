@@ -8,10 +8,10 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import microsofia.rmi.ObjectAddress;
 import microsofia.rmi.ServerAddress;
 import microsofia.rmi.impl.invocation.ClientInvocationHandler;
 import microsofia.rmi.impl.invocation.IClientInvoker;
-import microsofia.rmi.impl.invocation.ObjectAddress;
 
 /**
  * Implementation of the registry.

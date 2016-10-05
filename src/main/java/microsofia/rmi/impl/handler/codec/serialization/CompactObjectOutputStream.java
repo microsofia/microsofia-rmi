@@ -10,8 +10,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import microsofia.rmi.ObjectAddress;
 import microsofia.rmi.impl.IRegistryImpl;
-import microsofia.rmi.impl.invocation.ObjectAddress;
 
 /**
  * Inspired by Netty CompactObjectOutputStream.

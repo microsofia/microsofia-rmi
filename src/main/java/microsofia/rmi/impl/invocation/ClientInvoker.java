@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.inject.Inject;
 
 import io.netty.channel.Channel;
+import microsofia.rmi.ObjectAddress;
 import microsofia.rmi.ServerAddress;
 import microsofia.rmi.impl.invocation.connection.ClientConnection;
 import microsofia.rmi.impl.invocation.connection.ClientConnections;

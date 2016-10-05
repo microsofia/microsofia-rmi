@@ -1,8 +1,6 @@
-package microsofia.rmi.impl.invocation;
+package microsofia.rmi;
 
 import java.io.Serializable;
-
-import microsofia.rmi.ServerAddress;
 
 /**
  * Represents the address of a remote object, which consists of the server address and the object unique id.

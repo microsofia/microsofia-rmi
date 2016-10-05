@@ -21,6 +21,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import microsofia.rmi.IRegistry;
 import microsofia.rmi.IServer;
+import microsofia.rmi.ObjectAddress;
 import microsofia.rmi.Server;
 import microsofia.rmi.ServerAddress;
 import microsofia.rmi.impl.gc.ClientGC;
@@ -33,7 +34,6 @@ import microsofia.rmi.impl.handler.codec.serialization.ObjectDecoder;
 import microsofia.rmi.impl.handler.codec.serialization.ObjectEncoder;
 import microsofia.rmi.impl.invocation.ClientInvocationHandler;
 import microsofia.rmi.impl.invocation.IClientInvoker;
-import microsofia.rmi.impl.invocation.ObjectAddress;
 
 /**
  * Server implementation.
@@ -113,6 +113,8 @@ public class ServerImpl extends Server implements IServerImpl{
 		
 		//setting the port again in case the port is 0 and an anonymous one is used
 		serverAddress.setPort(((InetSocketAddress)server.config().localAddress()).getPort());
+		
+		localServers.put(serverAddress.getPort(), this);
 	}
 
 	@Override
@@ -130,6 +132,10 @@ public class ServerImpl extends Server implements IServerImpl{
 		registry.unexport(o);
 	}
 	
+	public ObjectAddress getObjectAddress(Object o){
+		return registry.getObjectAddress(o);
+	}
+	
 	@Override
     public <T> T lookup(ServerAddress serverAddress, Class<T> interf){
 		ClientInvocationHandler clientInvocationHandler=new ClientInvocationHandler(clientInvoker, new ObjectAddress(serverAddress, interf.getName(), new Class[]{interf}));
@@ -144,6 +150,7 @@ public class ServerImpl extends Server implements IServerImpl{
 	
 	@Override
 	public void stop() throws Throwable{
+		localServers.remove(serverAddress.getPort());
 		clientGC.stop();
 		serverGC.stop();
 		if (serverChannel.isActive()){

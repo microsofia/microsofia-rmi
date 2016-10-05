@@ -1,5 +1,8 @@
 package microsofia.rmi;
 
+import java.util.Hashtable;
+import java.util.Map;
+
 import javax.inject.Inject;
 
 /**
@@ -65,6 +68,11 @@ public abstract class Server implements IServer{
 	public abstract void unexport(Object o);
 	
 	/**
+	 * Returns the object address of an exported object
+	 * */
+	public abstract ObjectAddress getObjectAddress(Object o);
+	
+	/**
 	 * Returns a proxy to a remote object in a given server provided by its address having the 
 	 * interf as interface. The id of the located object will be the interface name.
 	 * The returned proxy is never null even if the remote server is down or the remote object is not exported.
@@ -88,4 +96,14 @@ public abstract class Server implements IServer{
 	 * Stops the server and frees all used resources (threads, sockets, ...)
 	 * */
 	public abstract void stop() throws Throwable;
+
+	//list of all local servers created within the JVM
+	protected static Map<Integer,Server> localServers = new Hashtable<>();
+	
+	/**
+	 * Returns the server listening on the port within the JVM.
+	 * */
+	public static Server getServer(int port){
+		return localServers.get(port);
+	}
 }

@@ -13,11 +13,11 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import microsofia.rmi.ObjectAddress;
 import microsofia.rmi.ServerAddress;
 import microsofia.rmi.impl.IRegistryImpl;
 import microsofia.rmi.impl.invocation.ClientInvocationHandler;
 import microsofia.rmi.impl.invocation.IClientInvoker;
-import microsofia.rmi.impl.invocation.ObjectAddress;
 
 /**
  * Inspired by Netty CompactObjectInputStream.

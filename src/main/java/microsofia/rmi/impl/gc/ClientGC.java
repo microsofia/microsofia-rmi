@@ -18,10 +18,10 @@ import javax.inject.Inject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import microsofia.rmi.ObjectAddress;
 import microsofia.rmi.ServerAddress;
 import microsofia.rmi.ServerConfiguration;
 import microsofia.rmi.impl.IServerImpl;
-import microsofia.rmi.impl.invocation.ObjectAddress;
 
 /**
  * Client side of a server that pings other remote server(s) in order to indicate the exported objects in which the local

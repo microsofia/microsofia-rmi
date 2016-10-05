@@ -2,6 +2,7 @@ package microsofia.rmi.impl.invocation;
 
 import java.lang.reflect.Method;
 import io.netty.channel.Channel;
+import microsofia.rmi.ObjectAddress;
 
 /**
  * Represents the client side of the server.

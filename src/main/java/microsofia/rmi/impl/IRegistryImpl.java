@@ -1,7 +1,7 @@
 package microsofia.rmi.impl;
 
 import microsofia.rmi.IRegistry;
-import microsofia.rmi.impl.invocation.ObjectAddress;
+import microsofia.rmi.ObjectAddress;
 
 /**
  * Internal interface of the registry.
