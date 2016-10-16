@@ -143,6 +143,12 @@ public class ServerImpl extends Server implements IServerImpl{
     }
 	
 	@Override
+    public <T> T lookup(ObjectAddress objectAddress, Class<T> interf){
+		ClientInvocationHandler clientInvocationHandler=new ClientInvocationHandler(clientInvoker, objectAddress);
+		return interf.cast(Proxy.newProxyInstance(classLoader, new Class[]{interf}, clientInvocationHandler));
+    }
+	
+	@Override
 	public IServer getServer(String host,int port){
 		ClientInvocationHandler clientInvocationHandler=new ClientInvocationHandler(clientInvoker, new ObjectAddress(new ServerAddress(host, port), IServer.class.getName(), new Class[]{IServer.class}));
 		return (IServer)Proxy.newProxyInstance(classLoader, new Class[]{IServer.class}, clientInvocationHandler);

@@ -82,6 +82,17 @@ public abstract class Server implements IServer{
 	 * @return a proxy of the remote object
 	 * */
     public abstract <T> T lookup(ServerAddress serverAddress, Class<T> interf);
+    
+    /**
+	 * Returns a proxy to a remote object in a given server provided by its address having the 
+	 * interf as interface. 
+	 * The returned proxy is never null even if the remote server is down or the remote object is not exported.
+	 * 
+	 * @param objectAddress the address of the remote object
+	 * @param interf the interface of the remote object
+	 * @return a proxy of the remote object
+	 * */
+    public abstract <T> T lookup(ObjectAddress objectAddress, Class<T> interf);
 
     /**
      * Returns a proxy to a remote server. The returned proxy is never null even if the remote server is down.
