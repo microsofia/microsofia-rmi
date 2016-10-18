@@ -1,11 +1,17 @@
 package microsofia.rmi;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents the address of a remote object, which consists of the server address and the object unique id.
  * */
-public class ObjectAddress implements Serializable {
+public class ObjectAddress implements Externalizable {
 	private static final long serialVersionUID = 0L;
 	private ServerAddress serverAddress;
 	private String id;
@@ -72,6 +78,36 @@ public class ObjectAddress implements Serializable {
         }
 		return "[ServerAddress:"+serverAddress+"][Id:"+id+"][Interfaces:"+str+"]";
 	}
+	
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeUTF(getId());
+		out.writeUTF(getServerAddress().getHost());
+		out.writeInt(getServerAddress().getPort());
+		out.writeInt(getInterfaces().length);
+		for (Class<?> c : getInterfaces()){
+			out.writeUTF(c.getName());
+		}
+    }
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    	setId(in.readUTF());
+    	
+    	ServerAddress sa=new ServerAddress();
+    	setServerAddress(sa);
+    	
+    	sa.setHost(in.readUTF());
+    	sa.setPort(in.readInt());
+
+    	List<Class<?>> interfaces=new ArrayList<>();
+
+    	int l=in.readInt();
+    	for (int i=0;i<l;i++){
+			interfaces.add(Class.forName(in.readUTF()));
+    	}
+    	setInterfaces(interfaces.toArray(new Class<?>[0]));
+    }
 	
 	//no need of the interfaces in hashcode computation
 	@Override
