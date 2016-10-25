@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 import javax.inject.Inject;
 
 import io.netty.channel.ChannelHandlerContext;
+import microsofia.rmi.ServerAddress;
 import microsofia.rmi.impl.IRegistryImpl;
 
 /**
@@ -17,6 +18,8 @@ public class ServerInvoker implements IServerInvoker{
 	//local registry
 	@Inject
 	private IRegistryImpl registry; 
+	@Inject
+	private ServerAddress serverAddress;
 	//local method hashcode
 	@Inject
 	private ClassesMetada classesMetada;
@@ -43,7 +46,7 @@ public class ServerInvoker implements IServerInvoker{
 						Object o=registry.getObject(request.getObjectId());
 						if (o==null){
 							//the object is not exported
-							throw new IllegalStateException("Object with id "+request.getObjectId()+" is not exported anymore.");
+							throw new IllegalStateException("Object with id "+request.getObjectId()+" is not exported anymore in server "+serverAddress);
 						}
 						
 						Method method=classesMetada.getMethod(o.getClass(), request.getMethod());
