@@ -91,10 +91,12 @@ public class CompactObjectInputStream extends ObjectInputStream {
         switch (type) {
         	case CompactObjectOutputStream.TYPE_FAT_DESCRIPTOR:
         		return super.readClassDescriptor();
+        		
         	case CompactObjectOutputStream.TYPE_THIN_DESCRIPTOR:
 	            String className = readUTF();
 	            Class<?> clazz = classLoader.loadClass(className);
 	            return ObjectStreamClass.lookupAny(clazz);
+	            
         	default:
         		throw new StreamCorruptedException("Unexpected class descriptor type: " + type);
         }

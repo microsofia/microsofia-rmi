@@ -24,7 +24,8 @@ public interface IRegistryImpl extends IRegistry{
 	public void export(String id,Object o,Class<?>[] interfaces);
 
 	/**
-	 * Shortcut method to the previous one. It exports an object with one interface and its id equal to the interface's name.
+	 * Shortcut method to the previous one. 
+	 * It exports an object with one interface and its id equal to the interface's name.
 	 * */
 	public void export(Object o,Class<?> interf);
 

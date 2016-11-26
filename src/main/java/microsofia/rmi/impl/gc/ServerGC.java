@@ -11,13 +11,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.inject.Inject;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import microsofia.rmi.IClientInterestListener;
 import microsofia.rmi.ServerAddress;
 import microsofia.rmi.ServerConfiguration;

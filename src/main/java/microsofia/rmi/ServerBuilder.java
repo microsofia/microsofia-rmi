@@ -30,7 +30,7 @@ import microsofia.rmi.impl.invocation.ServerInvoker;
 import microsofia.rmi.impl.invocation.connection.ClientConnections;
 
 /**
- * The only way to build a server is to use this builder.
+ * The unique way to build a server is to use this builder.
  * 
  * <br>
  * Example:

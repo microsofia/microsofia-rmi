@@ -21,7 +21,7 @@ public interface IClientInterestListener {
 	
 	/**
 	 * Notifies the listener that the client represented by the remoteServerAddress is not interested anymore by the
-	 * exported object with the provided ids
+	 * exported objects with the provided ids
 	 * 
 	 * @param remoteServerAddress the address of the remote client
 	 * @param ids the objects id in which the client is not interested anymore
